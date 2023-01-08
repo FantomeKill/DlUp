@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Files</title>
+  </head>
+  <body>
+    <h2></h2>
+    <h3></h3>
+
+    <h1>Files Uploader</h1>
+    <form id="uploadForm">
+        <input type="file" id="myFiles" multiple />
+        <button>Submit</button>
+    </form>
+    <ul id="uploaded"></ul>
+
+    <h1>Files Downloader</h1>
+    <ul id="downloads">
+    </ul>
+
+    
+    <script>
+      const form = document.getElementById('uploadForm')
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+const listDlFiles = async () => {
+    const downloads = document.getElementById('downloads');
+    downloads.innerText = '';
+
+    const response = await fetch('/getDlFiles', {
+        method: 'POST',
+    });
+    const json = await response.json();
+    json?.files.forEach((file) => {
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        a.href = `/download/${file}`;
+        a.textContent = file;
+        li.appendChild(a);
+        downloads.appendChild(li);
+    });
+}
+
+const listUpFiles = async () => {
+    const upl = document.getElementById('uploaded');
+    upl.innerText = '';
+
+    const response = await fetch('/getUpFiles', {
+        method: 'POST',
+    });
+    const json = await response.json();
+    json?.files.forEach((file) => {
+        const li = document.createElement('li');
+        li.textContent = file;
+        upl.appendChild(li);
+    });
+}
+
+const sendFiles = async () => {
+    //Object 
+    const myFiles = document.getElementById('myFiles').files;
+
+    const formData = new FormData();
+
+    Object.keys(myFiles).forEach((key) => {
+        formData.append(myFiles.item(key).name, myFiles.item(key));
+    });
+
+    const response = await fetch('/upload', {
+        method: 'POST',
+        body: formData,
+    });
+
+    const json = await response.json();
+
+    const h2 = document.querySelector('h2');
+    const h3 = document.querySelector('h3');
+    h2.textContent = `Status: ${json?.status}`;
+    h3.textContent = json?.message;
+
+    console.log(json);
+}
+
+addEventListener('DOMContentLoaded', () => {
+    listUpFiles();
+    listDlFiles();
+});
+
+
+form.addEventListener('submit', async (e) => {
+    console.log('click');
+    e.preventDefault();
+    sendFiles();
+    await sleep(1000);
+    listUpFiles();
+    listDlFiles();
+});
+  </script>
+  </body>
+</html>
