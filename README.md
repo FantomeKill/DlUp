@@ -1,6 +1,6 @@
 # DlUp
 
-### **TESTED AND MADE ON LINUX.
+### **TESTED AND MADE ON LINUX AND WINDOWS.
 
 This node project allow you to upload and download file from a server.
 
